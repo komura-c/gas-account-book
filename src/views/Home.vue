@@ -1,109 +1,117 @@
 <template>
-  <v-card>
-    <v-card-title>
-      <!-- 月選択 -->
-      <v-col cols="8">
-        <v-menu
-          ref="menu"
-          v-model="menu"
-          :close-on-content-click="false"
-          :return-value.sync="yearMonth"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on }">
-            <v-text-field
+  <div class="home">
+    <v-card>
+      <v-card-title>
+        <!-- 月選択 -->
+        <v-col cols="8">
+          <v-menu
+            ref="menu"
+            v-model="menu"
+            :close-on-content-click="false"
+            :return-value.sync="yearMonth"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="290px"
+          >
+            <template v-slot:activator="{ on }">
+              <v-text-field
+                v-model="yearMonth"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-on="on"
+                hide-details
+              />
+            </template>
+            <v-date-picker
               v-model="yearMonth"
-              prepend-icon="mdi-calendar"
-              readonly
-              v-on="on"
-              hide-details
-            />
-          </template>
-          <v-date-picker
-            v-model="yearMonth"
-            type="month"
-            color="green"
-            locale="ja-jp"
-            no-title
-            scrollable
-          >
-            <v-spacer />
-            <v-btn text color="grey" @click="menu = false">キャンセル</v-btn>
-            <v-btn text color="primary" @click="$refs.menu.save(yearMonth)"
-              >選択</v-btn
+              type="month"
+              color="green"
+              locale="ja-jp"
+              no-title
+              scrollable
             >
-          </v-date-picker>
-        </v-menu>
-      </v-col>
-      <v-spacer />
-      <!-- 追加ボタン -->
-      <v-col class="text-right" cols="4">
-        <v-btn dark color="green">
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-      </v-col>
-      <!-- 検索フォーム -->
-      <v-col cols="12">
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          hide-details
-        />
-      </v-col>
-    </v-card-title>
-    <!-- テーブル -->
-    <v-data-table
-      class="text-no-wrap"
-      :headers="tableHeaders"
-      :items="tableData"
-      :search="search"
-      :footer-props="footerProps"
-      :loading="loading"
-      :sort-by="'date'"
-      :sort-desc="true"
-      :items-per-page="30"
-      mobile-breakpoint="0"
-    >
-      <template v-slot:[`item.date`]="{ item }">
-        {{ parseInt(item.date.slice(-2)) + "日" }}
-      </template>
-      <!-- タグ列 -->
-      <template v-slot:[`item.tags`]="{ item }">
-        <div v-if="item.tags">
-          <v-chip
-            class="mr-2"
-            v-for="(tag, i) in item.tags.split(',')"
-            :key="i"
-          >
-            {{ tag }}
-          </v-chip>
-        </div>
-      </template>
-      <!-- 収入列 -->
-      <template v-slot:[`item.income`]="{ item }">
-        {{ separate(item.income) }}
-      </template>
-      <!-- タグ列 -->
-      <template v-slot:[`item.outgo`]="{ item }">
-        {{ separate(item.outgo) }}
-      </template>
-      <!-- 操作列 -->
-      <template v-slot:[`item.actions`]="{}">
-        <v-icon class="mr-2">mdi-pencil</v-icon>
-        <v-icon>mdi-delete</v-icon>
-      </template>
-    </v-data-table>
-  </v-card>
+              <v-spacer />
+              <v-btn text color="grey" @click="menu = false">キャンセル</v-btn>
+              <v-btn text color="primary" @click="$refs.menu.save(yearMonth)"
+                >選択</v-btn
+              >
+            </v-date-picker>
+          </v-menu>
+        </v-col>
+        <v-spacer />
+        <!-- 追加ボタン -->
+        <v-col class="text-right" cols="4">
+          <v-btn dark color="green" @click="onClickAdd">
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
+        </v-col>
+        <!-- 検索フォーム -->
+        <v-col cols="12">
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          />
+        </v-col>
+      </v-card-title>
+      <!-- テーブル -->
+      <v-data-table
+        class="text-no-wrap"
+        :headers="tableHeaders"
+        :items="tableData"
+        :search="search"
+        :footer-props="footerProps"
+        :loading="loading"
+        :sort-by="'date'"
+        :sort-desc="true"
+        :items-per-page="30"
+        mobile-breakpoint="0"
+      >
+        <template v-slot:[`item.date`]="{ item }">
+          {{ parseInt(item.date.slice(-2)) + "日" }}
+        </template>
+        <!-- タグ列 -->
+        <template v-slot:[`item.tags`]="{ item }">
+          <div v-if="item.tags">
+            <v-chip
+              class="mr-2"
+              v-for="(tag, i) in item.tags.split(',')"
+              :key="i"
+            >
+              {{ tag }}
+            </v-chip>
+          </div>
+        </template>
+        <!-- 収入列 -->
+        <template v-slot:[`item.income`]="{ item }">
+          {{ separate(item.income) }}
+        </template>
+        <!-- タグ列 -->
+        <template v-slot:[`item.outgo`]="{ item }">
+          {{ separate(item.outgo) }}
+        </template>
+        <!-- 操作列 -->
+        <template v-slot:[`item.actions`]="{ item }">
+          <v-icon class="mr-2" @click="onClickEdit(item)">mdi-pencil</v-icon>
+          <v-icon>mdi-delete</v-icon>
+        </template>
+      </v-data-table>
+    </v-card>
+    <ItemDialog ref="itemDialog" />
+  </div>
 </template>
 
 <script>
+import ItemDialog from "../components/ItemDialog.vue";
+
 export default {
   name: "Home",
+  components: {
+    ItemDialog,
+  },
 
   data() {
     const today = new Date();
@@ -172,6 +180,14 @@ export default {
       return num !== null
         ? num.toString().replace(/(\d)(?=(\d{3})+$)/g, "$1,")
         : null;
+    },
+    /** 追加ボタンがクリックされたとき */
+    onClickAdd() {
+      this.$refs.itemDialog.open("add");
+    },
+    /** 編集ボタンがクリックされたとき */
+    onClickEdit(item) {
+      this.$refs.itemDialog.open("edit", item);
     },
   },
 };
